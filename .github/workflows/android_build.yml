@@ -12,37 +12,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
-
-      - name: Download RenPy
+      - name: Inject GUI Assets
         run: |
           wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-sdk.tar.bz2
           tar xf renpy-8.2.3-sdk.tar.bz2
-          wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-rapt.zip
-          unzip -q renpy-8.2.3-rapt.zip
-          if [ -d "renpy-8.2.3-rapt" ]; then mv renpy-8.2.3-rapt renpy-8.2.3-sdk/rapt; else mv rapt renpy-8.2.3-sdk/rapt; fi
-
-      - name: Inject GUI Assets
-        run: |
           cp -r renpy-8.2.3-sdk/the_question/game/gui ./game/
           cp renpy-8.2.3-sdk/the_question/game/gui.rpy ./game/ || true
 
-      - name: Create Android Config
-        run: |
-          echo "{\"package\":\"com.example.mygame\",\"name\":\"My Game\",\"version\":\"1.0\"}" > .android.json
-
-      - name: Build APK
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-        run: |
-          ls -la renpy-8.2.3-sdk/rapt | head -5
-          chmod +x renpy-8.2.3-sdk/renpy.sh
-          ./renpy-8.2.3-sdk/renpy.sh . android_build
+      - name: Build Android
+        uses: ProjectAliceDev/renpy-build-action@master
+        with:
+          sdk-version: "8.2.3"
+          project-dir: "."
+          package: "android"
 
       - name: Upload APK
         if: always()
