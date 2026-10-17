@@ -1,0 +1,43 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: project
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt-hotspot'
+          java-version: '8'
+
+      - name: Install Ren'Py + RAPT
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: install
+          version: 8.3.7
+          dlc: rapt
+          android_sdk: true
+
+      - name: Build APK
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: android_build
+          build_type: apk
+          game: project
+          out_dir: target
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: target/*.apk
