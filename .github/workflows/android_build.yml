@@ -15,8 +15,8 @@ jobs:
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -28,7 +28,7 @@ jobs:
           cp -r the_question/game/gui ./game/
           cp the_question/game/gui.rpy ./game/ || true
 
-      - name: Download Ren'Py 8.2.3 + RAPT
+      - name: Download RenPy
         run: |
           wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-sdk.tar.bz2
           tar xf renpy-8.2.3-sdk.tar.bz2
@@ -37,7 +37,7 @@ jobs:
 
       - name: Create Android Config
         run: |
-          echo '{"package":"com.example.mygame","name":"My Game","version":"1.0"}' > .android.json
+          echo "{\"package\":\"com.example.mygame\",\"name\":\"My Game\",\"version\":\"1.0\"}" > .android.json
 
       - name: Build APK
         run: |
@@ -49,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: '**/*.apk'
+          path: "**/*.apk"
