@@ -11,33 +11,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: project
 
-      - name: Setup Java 8
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt-hotspot'
-          java-version: '8'
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Install Ren'Py + RAPT
-        uses: Ayowel/renpy-setup-action@v2.0.1
-        with:
-          action: install
-          version: 8.3.7
-          dlc: rapt
-          android_sdk: true
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Inject GUI Assets
+        run: |
+          wget -q https://www.renpy.org/dl/8.2.3/the_question-8.2.3.zip
+          unzip -q the_question-8.2.3.zip
+          cp -r the_question/game/gui ./game/
+          cp the_question/game/gui.rpy ./game/ || true
+
+      - name: Download Ren'Py 8.2.3 + RAPT
+        run: |
+          wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-sdk.tar.bz2
+          tar xf renpy-8.2.3-sdk.tar.bz2
+          wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-rapt.zip
+          unzip -q renpy-8.2.3-rapt.zip -d renpy-8.2.3-sdk/
+
+      - name: Create Android Config
+        run: |
+          echo '{"package":"com.example.mygame","name":"My Game","version":"1.0"}' > .android.json
 
       - name: Build APK
-        uses: Ayowel/renpy-setup-action@v2.0.1
-        with:
-          action: android_build
-          build_type: apk
-          game: project
-          out_dir: target
+        run: |
+          chmod +x renpy-8.2.3-sdk/renpy.sh
+          renpy-8.2.3-sdk/renpy.sh . android_build
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: target/*.apk
+          path: '**/*.apk'
