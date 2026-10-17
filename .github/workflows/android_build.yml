@@ -18,19 +18,17 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      - name: Inject GUI Assets
-        run: |
-          wget -q https://www.renpy.org/dl/8.2.3/the_question-8.2.3.zip
-          unzip -q the_question-8.2.3.zip
-          cp -r the_question/game/gui ./game/
-          cp the_question/game/gui.rpy ./game/ || true
-
       - name: Download RenPy
         run: |
           wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-sdk.tar.bz2
           tar xf renpy-8.2.3-sdk.tar.bz2
           wget -q https://www.renpy.org/dl/8.2.3/renpy-8.2.3-rapt.zip
           unzip -q renpy-8.2.3-rapt.zip -d renpy-8.2.3-sdk/
+
+      - name: Inject GUI Assets
+        run: |
+          cp -r renpy-8.2.3-sdk/the_question/game/gui ./game/
+          cp renpy-8.2.3-sdk/the_question/game/gui.rpy ./game/ || true
 
       - name: Create Android Config
         run: |
